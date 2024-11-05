@@ -1,1 +1,1 @@
-# RAG_LLM_using_Neo4j
+Here all the Mined text and Images will be stored from Llamaparse.
