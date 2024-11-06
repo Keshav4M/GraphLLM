@@ -158,7 +158,7 @@ def query():
         raw_text = query_variant.page_content if hasattr(query_variant, 'page_content') else str(query_variant)
     
         # Perform similarity search with the extracted text (not the Document object)
-        docs_with_scores = vector_index.similarity_search_with_score(raw_text, k=5000)  # Limit each search to top 100 for efficiency
+        docs_with_scores = vector_index.similarity_search_with_score(raw_text, k=2000)  # Limit each search to top 100 for efficiency
         retrieved_docs_with_scores.extend(docs_with_scores)
 
     # Remove duplicates based on document content
