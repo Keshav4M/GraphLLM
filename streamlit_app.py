@@ -126,6 +126,6 @@ if st.button("Get Answer") or st.session_state.get("get_answer"):
 
 # Display query history
 st.write("### Query History")
-for  entry in enumerate(st.session_state.history):
+for idx, entry in enumerate(st.session_state.history, start=1):
     with st.expander(f"Query: {entry['query']}"):
         st.write("**Response:**", entry.get("response", "No response yet"))
