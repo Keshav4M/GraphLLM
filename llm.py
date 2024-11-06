@@ -206,7 +206,7 @@ def query():
     response = vector_qa.invoke(input_data)
 
     # Return the response
-    return jsonify({"Model Response": response})
+    return jsonify({"Model Response": response['result']})
 
 if __name__ == '__main__':
     app.run(debug=True)
