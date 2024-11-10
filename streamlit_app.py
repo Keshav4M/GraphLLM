@@ -4,7 +4,7 @@ from PIL import Image
 
 
 # Streamlit UI Configuration
-st.set_page_config(page_title="IBD Chatbot", page_icon="💬", layout="centered")
+st.set_page_config(page_title="GutGuide", page_icon="💬", layout="centered")
 
 # Custom CSS for light background
 st.markdown(
@@ -85,11 +85,17 @@ logo = Image.open("dept_PNG-12.png")
 # Sidebar Logo and App Title
 with st.sidebar:
     st.image(logo, use_column_width=True)
-    st.title("IBD Chatbot")
+    st.title("GutGuide")
     st.caption("Powered by Neo4j and RAG LLM Agent")
+    st.markdown(
+        "<div class='sidebar-description'>"
+        "GutGuide is an intelligent chatbot designed to support patients with Inflammatory Bowel Disease (IBD). Offering personalized insights, symptom tracking, and dietary guidance, GutGuide empowers users to better manage and understand their IBD journey, improving daily well-being."
+        "</div>",
+        unsafe_allow_html=True
+    )
 
 # Main Title
-st.title("Chatbot for Inflammatory Bowel Disease")
+st.title("GutGuide")
 
 # Session state for query history
 if "history" not in st.session_state:
