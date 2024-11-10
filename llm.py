@@ -100,6 +100,9 @@ import os
 from langchain_community.vectorstores import Neo4jVector
 from langchain_google_genai import GoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain.retrievers.multi_query import MultiQueryRetriever
+import openai
+from langchain_openai import ChatOpenAI
+from langchain_openai.embeddings import OpenAIEmbeddings
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -112,6 +115,7 @@ NEO4J_URI = os.getenv('NEO4J_URI')
 NEO4J_USERNAME = os.getenv('NEO4J_USERNAME')
 NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
 google_api_key_1 = os.getenv('GOOGLE_API_KEY')
+openai_api_key = os.getenv('Openai_API_Key')
 
 # Initialize embeddings and vector store
 embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
@@ -120,14 +124,15 @@ vector_index = Neo4jVector.from_existing_graph(
     url=NEO4J_URI,
     username=NEO4J_USERNAME,
     password=NEO4J_PASSWORD,
-    index_name='retriev_index',
+    index_name='index_Search',
     node_label="Section",
     text_node_properties=['content'],
     embedding_node_property='embedding',
 )
 
 # Initialize the LLM for query reformulation
-llm = GoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_api_key_1)
+# llm = GoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_api_key_1)
+llm = ChatOpenAI(model = "gpt-4o-mini", openai_api_key = openai_api_key)
 
 # Create a prompt template for query reformulation
 multi_query_prompt_template = "Generate different ways to ask the following question:\nQuestion: {question}"
@@ -158,7 +163,7 @@ def query():
         raw_text = query_variant.page_content if hasattr(query_variant, 'page_content') else str(query_variant)
     
         # Perform similarity search with the extracted text (not the Document object)
-        docs_with_scores = vector_index.similarity_search_with_score(raw_text, k=2000)  # Limit each search to top 100 for efficiency
+        docs_with_scores = vector_index.similarity_search_with_score(raw_text, k=1000)  # Limit each search to top 100 for efficiency
         retrieved_docs_with_scores.extend(docs_with_scores)
 
     # Remove duplicates based on document content
@@ -193,14 +198,14 @@ def query():
     #         print(f"Chunk {i+1}: {chunk[:50]}...")
 
     # # Run the query through the model
-    # model_prompt = (
-    #     "Answer the following question based on the information provided:\n"
-    #     "Question: {user_query}\n"
-    #     "use the relevant information from the retrieved documents."
-    #     "Do not reply : I cannot answer to this question as it does not contain any information of the Question; Instead try to answer summarize content from the retrieved documents."
-    # )
+    model_prompt = (
+        "Answer the following question based on the information provided:\n"
+        "Question: {user_query}\n"
+        "use the relevant information from the retrieved documents."
+        "Do not reply : I cannot answer to this question as it does not contain any information of the Question; Instead try to summarize content from the retrieved documents."
+    )
     input_data = {
-        "query": user_prompt,
+        "query": f"{model_prompt.format(user_query=user_prompt)}",
         "retrieved_docs": retrieved_docs
     }
     response = vector_qa.invoke(input_data)
